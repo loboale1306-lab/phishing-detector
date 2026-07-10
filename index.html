@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>¿Ya caíste? — Detecta el Phishing</title>
+  <meta name="description" content="Aprende a identificar ataques de phishing en tiempo real. App educativa interactiva sobre ciberseguridad." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 0: GANCHO DE IMPACTO             -->
+  <!-- 3s alerta visual → revelación educativa   -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="scare-screen" class="scare-screen">
+
+    <!-- Lluvia de código de fondo -->
+    <canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+
+    <!-- Flash rojo parpadeante -->
+    <div class="scare-flash" id="scare-flash"></div>
+
+    <!-- FASE 1: Alerta visual (3s) -->
+    <div class="scare-phase" id="phase-alert">
+      <div class="scare-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="scare-title">ALERTA<br/>DE SEGURIDAD</div>
+      <div class="scare-subtitle">QR malicioso detectado</div>
+      <div class="scare-bar-track">
+        <div class="scare-bar-fill" id="scare-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- FASE 2: Revelación (aparece a los 3s) -->
+    <div class="scare-phase hidden" id="phase-reveal">
+      <div class="reveal-emoji">😅</div>
+      <div class="reveal-title">Tranquilo.<br/>Era una simulación.</div>
+      <div class="reveal-body">
+        Eso que sentiste en este momento —<br/>
+        el corazón acelerado, la duda —<br/>
+        <strong>eso es exactamente lo que busca el phishing.</strong>
+      </div>
+      <button class="btn-primary btn-pulse" onclick="endScareScreen()">
+        Quiero aprender a defenderme
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 1: HERO / GANCHO CINEMATOGRÁFICO  -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-hero" class="screen active">
+    <div class="grid-bg"></div>
+
+    <!-- FASE 1: SIMULACIÓN DE ATAQUE EN VIVO -->
+    <div id="attack-sequence" class="attack-sequence">
+      <div class="terminal-window">
+        <div class="terminal-titlebar">
+          <span class="term-dot red"></span>
+          <span class="term-dot yellow"></span>
+          <span class="term-dot green"></span>
+          <span class="term-title">sistema_victima@red-publica:~</span>
+        </div>
+        <div class="terminal-body" id="terminal-body"></div>
+      </div>
+      <div class="attack-meter">
+        <div class="attack-meter-label">RIESGO DE LA VÍCTIMA</div>
+        <div class="attack-meter-bar-wrap">
+          <div class="attack-meter-bar" id="attack-meter-bar"></div>
+        </div>
+        <div class="attack-meter-pct" id="attack-meter-pct">0%</div>
+      </div>
+      <button class="skip-btn" onclick="skipAttackSequence()">Saltar intro →</button>
+    </div>
+
+    <!-- FASE 2: REVELACIÓN / GANCHO PRINCIPAL -->
+    <div id="hero-reveal" class="hero-content hero-reveal hidden">
+      <div class="badge-top">
+        <span class="dot pulse-red"></span>
+        FERIA DE CIBERSEGURIDAD 2025
+      </div>
+
+      <h1 class="hero-title">
+        Eso que acabas<br/>de ver<span class="accent-red">,</span><br/>
+        te puede pasar<br/>a <span class="accent-red">ti.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Tardó <strong id="reveal-time">4 segundos</strong>. Sin que la víctima<br/>
+        notara nada. <span class="accent-red">¿Tú lo hubieras visto venir?</span>
+      </p>
+
+      <button class="btn-primary btn-pulse" onclick="goToScreen('screen-intro')">
+        <span>Ponme a prueba ahora</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+
+      <p class="hero-hint">⏱ 3 minutos · Sin registro · Funciona sin internet</p>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 2: INTRODUCCIÓN                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-intro" class="screen">
+    <div class="scan-line"></div>
+    <div class="container">
+
+      <div class="section-header">
+        <span class="eyebrow">¿Qué es el phishing?</span>
+        <h2>El engaño más usado<br/><span class="accent-red">del mundo digital</span></h2>
+      </div>
+
+      <div class="intro-grid">
+        <div class="intro-card" data-delay="0">
+          <div class="card-icon">🎣</div>
+          <h3>Qué es</h3>
+          <p>Una técnica de <strong>engaño digital</strong> donde criminales se hacen pasar por entidades confiables (bancos, redes sociales, empresas) para robar tus datos.</p>
+        </div>
+        <div class="intro-card" data-delay="100">
+          <div class="card-icon">📧</div>
+          <h3>Cómo llega</h3>
+          <p>Por <strong>correos electrónicos</strong>, mensajes de WhatsApp, llamadas telefónicas, redes Wi-Fi públicas o páginas web falsas que copian a las reales.</p>
+        </div>
+        <div class="intro-card" data-delay="200">
+          <div class="card-icon">🇻🇪</div>
+          <h3>En Venezuela</h3>
+          <p>Bancos como <strong>Venezuela, Bicentenario y Mercantil</strong> son suplantados constantemente. También llegan llamadas de números +592 hablando español perfecto.</p>
+        </div>
+      </div>
+
+      <div class="warning-banner">
+        <span class="warning-icon">⚡</span>
+        <p>Después de esta app, sabrás exactamente qué hacer cuando te llegue un mensaje sospechoso.</p>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-secondary" onclick="goToScreen('screen-hero')">← Atrás</button>
+        <button class="btn-primary" onclick="startQuiz()">
+          Comenzar el test
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 3: QUIZ INTERACTIVO               -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-quiz" class="screen">
+    <div class="scan-line"></div>
+    <div class="container">
+
+      <div class="quiz-header">
+        <div class="progress-info">
+          <span id="question-counter">Pregunta 1 de 4</span>
+          <span id="score-display" class="score-badge">⚡ 0 pts</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+
+      <div id="quiz-card" class="quiz-card">
+        <div class="scanning-effect" id="scanning-effect">
+          <span>ANALIZANDO...</span>
+        </div>
+
+        <div id="question-content">
+          <!-- Contenido dinámico por JS -->
+        </div>
+
+        <div id="answer-options" class="answer-options">
+          <!-- Opciones dinámicas por JS -->
+        </div>
+
+        <div id="feedback-panel" class="feedback-panel hidden">
+          <div id="feedback-icon" class="feedback-icon"></div>
+          <h3 id="feedback-title"></h3>
+          <p id="feedback-explanation"></p>
+          <ul id="feedback-tips" class="feedback-tips"></ul>
+          <button class="btn-primary" id="next-btn" onclick="nextQuestion()">
+            Siguiente →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 4: CASOS REALES                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-cases" class="screen">
+    <div class="scan-line"></div>
+    <div class="container">
+
+      <div class="section-header">
+        <span class="eyebrow">Archivo de amenazas</span>
+        <h2>Casos reales de phishing<br/><span class="accent-red">en Venezuela</span></h2>
+        <p class="section-desc">Esto no es ficción. Estos ataques ocurrieron y siguen ocurriendo.</p>
+      </div>
+
+      <div class="cases-grid">
+
+        <!-- CASO 1 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag danger">🔴 DOCUMENTADO</span>
+            <span class="case-source">Fuente: Efecto Cocuyo · Ene 2023</span>
+          </div>
+          <div class="case-type">Correo electrónico · Banco de Venezuela</div>
+          <h3>El correo que "bloquea tu cuenta en 24 horas"</h3>
+
+          <div class="case-preview">
+            <div class="email-recreation">
+              <div class="email-header-bar">
+                <div class="email-field">
+                  <span class="ef-label">De:</span>
+                  <span class="ef-value danger-text">soporte@banco-de-venezuela.com<span class="annotation">⚠ .info</span></span>
+                </div>
+                <div class="email-field">
+                  <span class="ef-label">Asunto:</span>
+                  <span class="ef-value warn-text">⚠ Su cuenta fue SUSPENDIDA — 24 horas para reactivar</span>
+                </div>
+              </div>
+              <div class="email-body-area">
+                <p>Estimado cliente,</p>
+                <p>Debido a <span class="highlight-danger">no actualizar su información</span>, hemos bloqueado el acceso a su cuenta por <span class="highlight-danger">motivos de seguridad</span>.</p>
+                <p>Usted dispone de <span class="highlight-danger">24 horas</span> para realizar esta operación:</p>
+                <div class="fake-link-btn">RECUPERAR MI CUENTA →</div>
+                <div class="annotation-box">
+                  <span>⛔ URL real: http://bdv-verificacion-<br/>cliente-2023.net/acceder</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal danger-tag">⛔ Dominio falso (.info)</span>
+            <span class="signal danger-tag">⛔ Urgencia de 24 horas</span>
+            <span class="signal danger-tag">⛔ No te llama por tu nombre</span>
+            <span class="signal safe-tag">✅ BDV solo usa bdvenlinea.banvenez.com</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"El BDV no emite bajo ninguna circunstancia enlaces que los direccionen a la banca en línea."</em>
+            <span class="fact-source">— Comunicado oficial BDV, Feb 2023</span>
+          </div>
+        </div>
+
+        <!-- CASO 2 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag danger">🔴 DOCUMENTADO</span>
+            <span class="case-source">Fuente: El Pitazo · Sep 2024</span>
+          </div>
+          <div class="case-type">Anuncio pagado en apps · Banco de Venezuela</div>
+          <h3>El crédito falso que apareció como anuncio</h3>
+
+          <div class="case-preview">
+            <div class="ad-recreation">
+              <div class="ad-badge">📢 ANUNCIO PATROCINADO</div>
+              <div class="ad-logo-bar">
+                <div class="ad-fake-logo">BDV</div>
+                <span class="ad-fake-name">Banco de Venezuela Oficial</span>
+                <span class="annotation">⚠ Cuenta no verificada</span>
+              </div>
+              <div class="ad-body">
+                <p class="ad-title">🎉 ¡Crédito digital disponible para ti!</p>
+                <p class="ad-sub">Hasta Bs. 50.000 sin fiador. Solicítalo ahora →</p>
+              </div>
+              <div class="ad-url danger-text">banco-venezuela-creditos.net/solicitar</div>
+              <div class="ad-flow">
+                <div class="flow-step">1. Ingresa usuario + clave</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step danger-bg">2. Sube foto de tu tarjeta de coordenadas</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step danger-bg">3. Cuenta vaciada</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal danger-tag">⛔ Anuncio pagado ≠ oficial</span>
+            <span class="signal danger-tag">⛔ Pide tarjeta de coordenadas</span>
+            <span class="signal danger-tag">⛔ URL no es la del BDV</span>
+            <span class="signal safe-tag">✅ Créditos solo por la BDVApp oficial</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"Está muy bien hecha para algunas personas confiadas y poco precavidas."</em>
+            <span class="fact-source">— @zonadepagos reportando el caso, Sep 2024</span>
+          </div>
+        </div>
+
+        <!-- CASO 3 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag danger">🔴 DOCUMENTADO</span>
+            <span class="case-source">Fuente: Efecto Cocuyo · Ago 2024</span>
+          </div>
+          <div class="case-type">Redes sociales · Red de cuentas falsas</div>
+          <h3>La red de cuentas que suplantó al BDV en Instagram</h3>
+
+          <div class="case-preview">
+            <div class="social-recreation">
+              <div class="social-profile">
+                <div class="social-avatar">BDV</div>
+                <div class="social-info">
+                  <div class="social-name">Banco.de.Venezuela.Oficial <span class="annotation">⚠ Sin ✓ verificado</span></div>
+                  <div class="social-handle">@bancovenezuela_creditos</div>
+                </div>
+              </div>
+              <div class="social-post">
+                <p>🚗 <strong>¡SORTEO DE VEHÍCULO!</strong><br/>
+                Participa aquí: bit.ly/bdv-sorteo2024<br/>
+                Solo necesitas registrarte con tus datos bancarios. 🎁</p>
+              </div>
+              <div class="social-stats">❤ 1.2K &nbsp; 💬 348 &nbsp; 🔁 892</div>
+              <div class="annotation-box">
+                <span>⛔ Cuenta falsa. El BDV real es @BcodeVenezuela</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal danger-tag">⛔ Sin verificación oficial</span>
+            <span class="signal danger-tag">⛔ Sorteos que piden datos bancarios</span>
+            <span class="signal danger-tag">⛔ Links acortados (bit.ly)</span>
+            <span class="signal safe-tag">✅ BDV oficial: @BcodeVenezuela</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"Varios usuarios denunciaron que el dinero de sus cuentas desapareció de un día a otro."</em>
+            <span class="fact-source">— Efecto Cocuyo, investigación agosto 2024</span>
+          </div>
+        </div>
+
+        <!-- CASO 4 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag danger">🔴 MUY COMÚN</span>
+            <span class="case-source">Reportado ampliamente en Venezuela</span>
+          </div>
+          <div class="case-type">Llamada telefónica · Vishing</div>
+          <h3>La llamada del "empleado bancario" con acento perfecto</h3>
+
+          <div class="case-preview">
+            <div class="call-recreation">
+              <div class="call-screen">
+                <div class="call-incoming">LLAMADA ENTRANTE</div>
+                <div class="call-number-big">+58 212 555-0147</div>
+                <div class="call-id">Posible: Banco Bicentenario</div>
+              </div>
+              <div class="call-script">
+                <div class="call-line attacker">
+                  <span class="speaker">Atacante:</span>
+                  <span>"Buenos días, le llama Carlos Pérez del Banco Bicentenario. Detectamos un cargo no autorizado de Bs. 4.800. Para cancelarlo necesito verificar su cédula, fecha de nacimiento y su <span class="highlight-danger">clave de 4 dígitos</span>..."</span>
+                </div>
+                <div class="call-line correct">
+                  <span class="speaker correct-speaker">Tú debes:</span>
+                  <span>Colgar. Llamar al número del reverso de tu tarjeta.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal danger-tag">⛔ Pide tu clave (NUNCA es legítimo)</span>
+            <span class="signal danger-tag">⛔ Urgencia inmediata</span>
+            <span class="signal danger-tag">⛔ Número desconocido</span>
+            <span class="signal safe-tag">✅ Ningún banco pide tu PIN por teléfono</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"El banco YA tiene tus datos. Si te los piden por teléfono, es fraude — 100% de las veces."</em>
+            <span class="fact-source">— Principio base de seguridad bancaria</span>
+          </div>
+        </div>
+
+        <!-- CASO 5 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag warning">🟡 VIRAL EN VENEZUELA</span>
+            <span class="case-source">Reportado en WhatsApp y Twitter</span>
+          </div>
+          <div class="case-type">WhatsApp · Cadena infectada</div>
+          <h3>El mensaje que llegó desde el número de tu amigo</h3>
+
+          <div class="case-preview">
+            <div class="wa-recreation">
+              <div class="wa-contact">
+                <div class="wa-avatar">👤</div>
+                <div class="wa-info">
+                  <div class="wa-name">José (Trabajo) <span class="annotation">⚠ Cuenta comprometida</span></div>
+                  <div class="wa-time">Hoy, 3:47 PM</div>
+                </div>
+              </div>
+              <div class="wa-bubble">
+                Mira esto, yo gané el mío 🎉<br/>
+                Quedan pocas horas:<br/>
+                <span class="danger-text">sorteo-vzla-iphone15.xyz/ganar</span><br/>
+                ¡Registrate antes de que se acabe! 👆
+              </div>
+              <div class="wa-note">⚠ José no envió esto. Su cuenta fue hackeada.</div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal danger-tag">⛔ Dominio inventado (.xyz)</span>
+            <span class="signal danger-tag">⛔ Urgencia artificial</span>
+            <span class="signal danger-tag">⛔ Premio sin haber participado</span>
+            <span class="signal safe-tag">✅ Llama a José antes de abrir</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"Este enlace recolecta tu correo, tu IP, el Wi-Fi de tu casa y los dispositivos que te rodean."</em>
+            <span class="fact-source">— @FintechCCS analizando enlace viral, Mar 2023</span>
+          </div>
+        </div>
+
+        <!-- CASO 6 ─────────────────────────────────── -->
+        <div class="case-card">
+          <div class="case-header">
+            <span class="case-tag safe">🟢 APRENDE A DETECTARLO</span>
+            <span class="case-source">Señales universales de phishing</span>
+          </div>
+          <div class="case-type">Guía visual · URLs y dominios</div>
+          <h3>Cómo leer una URL y no ser engañado</h3>
+
+          <div class="case-preview">
+            <div class="url-lesson">
+              <div class="url-example bad">
+                <div class="url-label danger-tag-sm">⛔ FALSO</div>
+                <div class="url-breakdown">
+                  <span class="url-part dim">http://</span><span class="url-part danger-hl">bancodevenezuela</span><span class="url-part dim">-verificacion</span><span class="url-part danger-hl">.net</span><span class="url-part dim">/acceder</span>
+                </div>
+                <div class="url-explain">El dominio real no es .net — y tiene palabras extra</div>
+              </div>
+              <div class="url-example bad">
+                <div class="url-label danger-tag-sm">⛔ FALSO</div>
+                <div class="url-breakdown">
+                  <span class="url-part dim">https://</span><span class="url-part danger-hl">mercantilbanco.com.ve</span><span class="url-part dim">.seguro</span><span class="url-part danger-hl">.info</span>
+                </div>
+                <div class="url-explain">El .info al final es el dominio real — no el .com.ve</div>
+              </div>
+              <div class="url-example good">
+                <div class="url-label safe-tag-sm">✅ REAL</div>
+                <div class="url-breakdown">
+                  <span class="url-part dim">https://</span><span class="url-part safe-hl">www.bancodevenezuela.com</span>
+                </div>
+                <div class="url-explain">Dominio limpio, sin extras, con HTTPS</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-signals">
+            <span class="signal safe-tag">✅ Lee lo que está ANTES del primer /</span>
+            <span class="signal safe-tag">✅ Guarda el sitio oficial como favorito</span>
+            <span class="signal danger-tag">⛔ HTTPS solo no garantiza seguridad</span>
+          </div>
+
+          <div class="case-fact">
+            💬 <em>"El BDV reitera que su único portal oficial es bdvenlinea.banvenez.com"</em>
+            <span class="fact-source">— Banco de Venezuela, comunicado de seguridad 2023</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-secondary" onclick="goToScreen('screen-quiz')">← Volver al test</button>
+        <button class="btn-primary" onclick="goToScreen('screen-tips')">Ver cómo protegerme →</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 5: TIPS DE PROTECCIÓN             -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-tips" class="screen">
+    <div class="scan-line"></div>
+    <div class="container">
+
+      <div class="section-header">
+        <span class="eyebrow">Tu escudo digital</span>
+        <h2>Cómo protegerte<br/><span class="accent-green">del phishing</span></h2>
+      </div>
+
+      <div class="tips-grid">
+        <div class="tip-item">
+          <div class="tip-num">01</div>
+          <div class="tip-body">
+            <h3>Verifica la URL antes de hacer clic</h3>
+            <p>Pasa el cursor sobre cualquier link antes de abrirlo. Busca errores ortográficos: "bancodevenezueLa.com" vs "bancodevenezuela.com".</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">02</div>
+          <div class="tip-body">
+            <h3>Ningún banco pide tu clave por ningún medio</h3>
+            <p>Ni por llamada, SMS, correo ni WhatsApp. Si te la piden, es un fraude. Cuelga y llama tú directamente al número oficial.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">03</div>
+          <div class="tip-body">
+            <h3>Desconfía de la urgencia</h3>
+            <p>"Tu cuenta será bloqueada en 24 horas" es una táctica de presión. Los mensajes legítimos no te presionan a actuar de inmediato.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">04</div>
+          <div class="tip-body">
+            <h3>Activa la autenticación en dos pasos (2FA)</h3>
+            <p>Aunque roben tu contraseña, necesitarán el código de tu teléfono para entrar. Es la protección más efectiva disponible.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">05</div>
+          <div class="tip-body">
+            <h3>No uses Wi-Fi público sin VPN</h3>
+            <p>En redes abiertas, cualquiera puede interceptar tu tráfico. Evita hacer operaciones bancarias en redes públicas o usa siempre una VPN.</p>
+          </div>
+        </div>
+        <div class="tip-item">
+          <div class="tip-num">06</div>
+          <div class="tip-body">
+            <h3>Mantén tu antivirus actualizado</h3>
+            <p>Un buen antivirus detecta páginas de phishing conocidas y te alerta antes de que ingreses tus datos. Es tu primera línea de defensa.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="emergency-box">
+        <h3>🚨 ¿Ya fuiste víctima?</h3>
+        <div class="emergency-steps">
+          <span>1. Cambia tu contraseña <strong>ahora mismo</strong></span>
+          <span>2. Llama a tu banco para <strong>bloquear movimientos</strong></span>
+          <span>3. Reporta a <strong>CONATEL o SUNACIP</strong></span>
+          <span>4. Avisa a tus contactos si tu cuenta fue comprometida</span>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn-secondary" onclick="goToScreen('screen-cases')">← Casos reales</button>
+        <button class="btn-primary" onclick="goToScreen('screen-result')">Ver mi resultado →</button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- PANTALLA 6: RESULTADO FINAL                -->
+  <!-- ══════════════════════════════════════════ -->
+  <section id="screen-result" class="screen">
+    <div class="scan-line"></div>
+    <div class="container result-container">
+
+      <div id="result-badge" class="result-badge"></div>
+      <h2 id="result-title" class="result-title"></h2>
+      <p id="result-subtitle" class="result-subtitle"></p>
+
+      <div class="score-circle-wrap">
+        <div class="score-circle" id="score-circle">
+          <span id="final-score">0</span>
+          <small>de 4</small>
+        </div>
+      </div>
+
+      <div id="result-message" class="result-message"></div>
+
+      <div class="share-section">
+        <p>Comparte lo que aprendiste hoy 👇</p>
+        <div class="share-tip">
+          "Acabo de descubrir cómo detectar phishing. ¿Tú sabrías reconocerlo? 🎣🔐"
+        </div>
+      </div>
+
+      <div class="nav-buttons centered">
+        <button class="btn-secondary" onclick="goToScreen('screen-cases')">Ver casos reales</button>
+        <button class="btn-primary" onclick="restartApp()">
+          Reiniciar test
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- BARRA DE NAVEGACIÓN INFERIOR               -->
+  <!-- ══════════════════════════════════════════ -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-item active" data-screen="screen-hero" onclick="navTo('screen-hero')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Inicio</span>
+    </button>
+    <button class="nav-item" data-screen="screen-quiz" onclick="navTo('screen-quiz')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Test</span>
+    </button>
+    <button class="nav-item" data-screen="screen-cases" onclick="navTo('screen-cases')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Casos</span>
+    </button>
+    <button class="nav-item" data-screen="screen-tips" onclick="navTo('screen-tips')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Tips</span>
+    </button>
+  </nav>
+
+
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
