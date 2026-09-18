@@ -372,12 +372,71 @@ function showFeedback(isCorrect, q) {
 
 function nextQuestion() {
   currentQuestion++;
+
+  // ── INTERCEPTOR: Después de Q2 (índice 1), mostrar notificación del sistema
+  if (currentQuestion === 2) {
+    showSystemAlert();
+    return;
+  }
+
   if (currentQuestion >= QUESTIONS.length) {
     goToScreen('screen-cases');
     return;
   }
   renderQuestion();
   document.getElementById('quiz-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── NOTIFICACIÓN DEL SISTEMA ─────────────────────────
+function showSystemAlert() {
+  const overlay = document.getElementById('system-alert-overlay');
+  if (!overlay) return;
+
+  // Vibración de alerta
+  if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 500]);
+
+  // Sonido de alerta del sistema
+  playSystemAlertSound();
+
+  overlay.classList.remove('sa-hidden');
+  overlay.classList.add('sa-visible');
+
+  // Forzar que no se pueda hacer scroll detrás
+  document.body.style.overflow = 'hidden';
+}
+
+function dismissSystemAlert() {
+  // Los botones "Ver detalles" e "Ignorar" llaman aquí
+  // pero NO hacen nada — los presentadores explican en vivo
+  // Esta función existe pero no ejecuta ninguna acción visible
+  return false;
+}
+
+function revealSystemExplanation() {
+  // Se llama solo cuando el presentador decide revelar la explicación
+  const card = document.getElementById('sa-explanation-card');
+  if (card) {
+    card.classList.remove('sa-hidden');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function playSystemAlertSound() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  // Tono de notificación del sistema — más grave y serio que el scare screen
+  [0, 0.55, 1.0].forEach((t, i) => {
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = i === 0 ? 'sine' : 'triangle';
+    osc.frequency.value = i === 0 ? 520 : 440;
+    gain.gain.setValueAtTime(0.09, ctx.currentTime + t);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.45);
+    osc.start(ctx.currentTime + t);
+    osc.stop(ctx.currentTime  + t + 0.45);
+  });
 }
 
 
@@ -455,3 +514,18 @@ document.addEventListener('DOMContentLoaded', () => {
   goToScreen('screen-hero');
   runScareScreen();
 });
+
+
+function closeSystemAlert() {
+  const overlay = document.getElementById('system-alert-overlay');
+  if (overlay) {
+    overlay.classList.add('sa-exit');
+    setTimeout(() => {
+      overlay.classList.add('sa-hidden');
+      overlay.classList.remove('sa-visible', 'sa-exit');
+      document.body.style.overflow = '';
+      // Reiniciar al inicio
+      restartApp();
+    }, 500);
+  }
+}
