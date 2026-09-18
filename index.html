@@ -629,7 +629,108 @@
   </nav>
 
 
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- SYSTEM ALERT OVERLAY — Notificación del sistema    -->
+  <!-- Aparece después de Q2. Diseño OS, no de la app.   -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div id="system-alert-overlay" class="sa-hidden">
+
+    <!-- Fondo oscuro de sistema -->
+    <div class="sa-backdrop"></div>
+
+    <!-- Contenedor centrado -->
+    <div class="sa-wrapper">
+
+      <!-- Notificación tipo sistema operativo -->
+      <div class="sa-notification" id="sa-notification">
+
+        <!-- Barra superior tipo navegador/OS -->
+        <div class="sa-topbar">
+          <div class="sa-topbar-left">
+            <div class="sa-browser-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#4A90D9" stroke-width="1.5"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="#4A90D9" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <div class="sa-topbar-info">
+              <span class="sa-domain">phishinguptt.netlify.app</span>
+              <span class="sa-time">ahora</span>
+            </div>
+          </div>
+          <div class="sa-topbar-right">
+            <div class="sa-gear-icon">⚙</div>
+          </div>
+        </div>
+
+        <!-- Icono de advertencia principal -->
+        <div class="sa-alert-header">
+          <div class="sa-shield-warning">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="#1A1A2A" stroke="#D93025" stroke-width="1.8"/>
+              <line x1="12" y1="9" x2="12" y2="13" stroke="#D93025" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="12" cy="16.5" r="1.2" fill="#D93025"/>
+            </svg>
+          </div>
+          <div class="sa-alert-title-block">
+            <div class="sa-alert-title">Alerta de seguridad crítica</div>
+            <div class="sa-alert-source">Administrador del navegador</div>
+          </div>
+        </div>
+
+        <!-- Mensaje principal -->
+        <div class="sa-body">
+          <p class="sa-main-msg">Las contraseñas guardadas en el navegador fueron extraídas por usar una página insegura.</p>
+
+          <div class="sa-detail-box">
+            <div class="sa-detail-row">
+              <span class="sa-detail-label">Tipo de amenaza</span>
+              <span class="sa-detail-val danger-val">Credential Harvesting</span>
+            </div>
+            <div class="sa-detail-row">
+              <span class="sa-detail-label">Contraseñas afectadas</span>
+              <span class="sa-detail-val danger-val">Múltiples cuentas detectadas</span>
+            </div>
+            <div class="sa-detail-row">
+              <span class="sa-detail-label">Conexión</span>
+              <span class="sa-detail-val danger-val">No cifrada — HTTP</span>
+            </div>
+            <div class="sa-detail-row">
+              <span class="sa-detail-label">Estado</span>
+              <span class="sa-detail-val warn-val">⚠ Datos en tránsito</span>
+            </div>
+          </div>
+
+          <p class="sa-sub-msg">Se recomienda cambiar inmediatamente todas las contraseñas asociadas a este dispositivo y revocar sesiones activas.</p>
+        </div>
+
+        <!-- Botones que no hacen nada -->
+        <div class="sa-actions">
+          <button class="sa-btn sa-btn-ghost" onclick="return dismissSystemAlert()">Ignorar</button>
+          <button class="sa-btn sa-btn-primary" onclick="return dismissSystemAlert()">Ver detalles</button>
+        </div>
+
+      </div>
+
+      <!-- Tarjeta de revelación — oculta, la activa el presentador -->
+      <div class="sa-explanation-card sa-hidden" id="sa-explanation-card">
+        <div class="sa-reveal-icon">😮‍💨</div>
+        <div class="sa-reveal-title">Eso fue una demostración.</div>
+        <div class="sa-reveal-body">
+          Ese mensaje <strong>no era real</strong>. Ninguna contraseña fue robada.<br/><br/>
+          Pero acabas de experimentar exactamente lo que siente una víctima de phishing cuando hace clic en un enlace inseguro.<br/><br/>
+          <strong>El phishing real usa mensajes así — y son mucho más convincentes porque llegan cuando menos lo esperas.</strong>
+        </div>
+        <button class="sa-reveal-btn" onclick="closeSystemAlert()">Entendido — volver al inicio</button>
+      </div>
+
+    </div>
+  </div>
+
   <script src="js/questions.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
+
+SHA: 16461ab8853e957b4be03caaa9a8b3e461c8cb86
