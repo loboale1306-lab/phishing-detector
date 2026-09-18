@@ -1961,3 +1961,332 @@ body {
     animation: none;
   }
 }
+
+
+
+/* ═══════════════════════════════════════════════════════
+   SYSTEM ALERT OVERLAY
+   Diseño deliberadamente distinto — colores de SO/navegador
+   Sin ningún elemento visual de la app (sin rojo, sin dark panel)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Utilidades del overlay ── */
+.sa-hidden  { display: none !important; }
+.sa-visible { display: flex !important; }
+
+/* ── Overlay full-screen ── */
+#system-alert-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.sa-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.sa-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: sa-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sa-slide-in {
+  from { opacity: 0; transform: translateY(-24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+.sa-exit {
+  animation: sa-slide-out 0.45s ease-in forwards;
+}
+
+@keyframes sa-slide-out {
+  to { opacity: 0; transform: translateY(20px) scale(0.96); }
+}
+
+/* ── Tarjeta de notificación principal ── */
+.sa-notification {
+  background: #1C1C1E;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+/* Barra superior tipo navegador */
+.sa-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  background: #2C2C2E;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.sa-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sa-browser-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.sa-browser-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sa-topbar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sa-domain {
+  font-size: 12px;
+  font-weight: 500;
+  color: #EBEBF5;
+  letter-spacing: 0.1px;
+}
+
+.sa-time {
+  font-size: 10px;
+  color: #8E8E93;
+}
+
+.sa-gear-icon {
+  font-size: 16px;
+  color: #8E8E93;
+  cursor: default;
+}
+
+/* Header con icono de escudo */
+.sa-alert-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sa-shield-warning {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(217,48,37,0.5));
+  animation: sa-shield-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sa-shield-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(217,48,37,0.4)); }
+  50%       { filter: drop-shadow(0 0 16px rgba(217,48,37,0.8)); }
+}
+
+.sa-shield-warning svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sa-alert-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.sa-alert-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+
+.sa-alert-source {
+  font-size: 12px;
+  color: #8E8E93;
+  font-weight: 400;
+}
+
+/* Cuerpo del mensaje */
+.sa-body {
+  padding: 14px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sa-main-msg {
+  font-size: 15px;
+  font-weight: 400;
+  color: #EBEBF5;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tabla de detalles técnicos */
+.sa-detail-box {
+  background: #2C2C2E;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.sa-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 12px;
+}
+
+.sa-detail-row:last-child {
+  border-bottom: none;
+}
+
+.sa-detail-label {
+  font-size: 12px;
+  color: #8E8E93;
+  flex-shrink: 0;
+}
+
+.sa-detail-val {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.danger-val { color: #FF453A; }
+.warn-val   { color: #FFD60A; }
+
+.sa-sub-msg {
+  font-size: 13px;
+  color: #8E8E93;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Botones de acción */
+.sa-actions {
+  display: flex;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sa-btn {
+  flex: 1;
+  padding: 14px 10px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.15s;
+  letter-spacing: -0.1px;
+}
+
+.sa-btn:active {
+  background: rgba(255,255,255,0.06);
+}
+
+.sa-btn-ghost {
+  color: #8E8E93;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.sa-btn-primary {
+  color: #4A90D9;
+  font-weight: 600;
+}
+
+/* ── Tarjeta de revelación educativa ── */
+.sa-explanation-card {
+  background: #1C1C1E;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  animation: sa-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.sa-reveal-icon {
+  font-size: 52px;
+}
+
+.sa-reveal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.3px;
+}
+
+.sa-reveal-body {
+  font-size: 15px;
+  color: #EBEBF5;
+  line-height: 1.65;
+}
+
+.sa-reveal-body strong {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.sa-reveal-btn {
+  margin-top: 8px;
+  background: #4A90D9;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: -0.1px;
+}
+
+.sa-reveal-btn:hover  { background: #3A7BC8; }
+.sa-reveal-btn:active { transform: scale(0.98); }
+
+/* ── Responsive mobile ── */
+@media (max-width: 480px) {
+  #system-alert-overlay {
+    padding: 16px;
+    align-items: flex-end;
+    padding-bottom: 32px;
+  }
+
+  .sa-wrapper {
+    max-width: 100%;
+  }
+
+  .sa-alert-title { font-size: 16px; }
+  .sa-main-msg    { font-size: 14px; }
+  .sa-btn         { font-size: 15px; padding: 13px 8px; }
+}
