@@ -20,10 +20,11 @@ function runScareScreen() {
     if (pct >= 100) clearInterval(barInterval);
   }, 66);
 
-  // Vibración corta e impactante (3 pulsos)
-  if (navigator.vibrate) {
-    navigator.vibrate([200, 80, 200, 80, 400]);
-  }
+  // Vibración universal: Android (motor háptico) + iOS (rumble de altavoz)
+  triggerUniversalVibration([200, 80, 200, 80, 400]);
+
+  // Flash de pantalla rojo — funciona en Safari iOS y Chrome iOS
+  triggerScreenFlash('#ff0022', 4);
 
   // Sonido de alerta al inicio
   playAlertSound();
@@ -42,8 +43,10 @@ function showReveal() {
     flashEl.style.opacity   = '0';
   }
 
-  // Vibración suave de alivio
-  if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
+  // Vibración suave de alivio — universal
+  triggerUniversalVibration([60, 60, 60], false); // sin rumble en el alivio
+  // Flash suave verde — transición visual clara
+  triggerScreenFlash('#00e87a', 1);
 
   if (phaseAlert)  phaseAlert.classList.add('hidden');
   if (phaseReveal) phaseReveal.classList.remove('hidden');
@@ -60,6 +63,85 @@ function endScareScreen() {
       scare.style.display = 'none';
       setTimeout(runAttackSequence, 300);
     }, 450);
+  }
+}
+
+
+// ─── FLASH DE PANTALLA (iOS Safari + Chrome) ────────────
+// Crea un div rojo que cubre toda la pantalla por milisegundos.
+// Funciona en todos los navegadores incluyendo Safari iOS.
+function triggerScreenFlash(color = '#ff0022', pulses = 3) {
+  let flashDiv = document.getElementById('_ios_flash');
+  if (!flashDiv) {
+    flashDiv = document.createElement('div');
+    flashDiv.id = '_ios_flash';
+    flashDiv.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:2147483647',
+      'pointer-events:none', 'opacity:0',
+      'transition:opacity 0.04s ease-in-out',
+    ].join(';');
+    document.body.appendChild(flashDiv);
+  }
+  flashDiv.style.background = color;
+
+  // Secuencia de pulsos: encender → apagar → encender → apagar...
+  const ON  = 70;   // ms encendido
+  const OFF = 90;   // ms apagado
+  let step = 0;
+  const total = pulses * 2;
+
+  function tick() {
+    if (step >= total) {
+      flashDiv.style.opacity = '0';
+      return;
+    }
+    flashDiv.style.opacity = step % 2 === 0 ? '0.88' : '0';
+    step++;
+    setTimeout(tick, step % 2 === 0 ? OFF : ON);
+  }
+  tick();
+}
+
+// ─── VIBRACIÓN UNIVERSAL (Android nativo + fallback iOS) ─
+// iOS no soporta navigator.vibrate(), pero sí la API de Audio
+// con un oscilador de baja frecuencia que hace "temblar" el
+// altavoz físico del teléfono — efecto táctil perceptible
+// cuando el volumen está activo.
+function triggerUniversalVibration(pattern, audioFallback = true) {
+  // Intento 1 — navigator.vibrate (Android + algunos browsers)
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
+
+  // Intento 2 — AudioContext rumble para iOS (y como refuerzo en Android)
+  if (audioFallback) {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+
+    // Sub-grave a 40Hz — frecuencia que hace vibrar físicamente
+    // el altavoz del teléfono. No es vibración del motor háptico,
+    // pero en volumen medio-alto se siente en la mano.
+    const totalMs = Array.isArray(pattern)
+      ? pattern.reduce((a, b) => a + b, 0)
+      : pattern;
+    const duration = Math.min(totalMs / 1000, 1.5);
+
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.value = 40; // Hz — sub-grave físico
+
+    // Envelope: ataque rápido, sustain, caída rápida
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.35, ctx.currentTime + duration - 0.1);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
   }
 }
 
@@ -392,8 +474,11 @@ function showSystemAlert() {
   const overlay = document.getElementById('system-alert-overlay');
   if (!overlay) return;
 
-  // Vibración de alerta
-  if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 500]);
+  // Vibración universal intensa — motor háptico Android + rumble iOS
+  triggerUniversalVibration([300, 100, 300, 100, 500]);
+
+  // Flash rojo agresivo — 5 pulsos, el más intenso de toda la app
+  triggerScreenFlash('#ff0022', 5);
 
   // Sonido de alerta del sistema
   playSystemAlertSound();
